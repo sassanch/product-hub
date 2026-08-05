@@ -1,0 +1,1 @@
+import Link from "next/link";export default function NotFound(){return <main className="error-page"><div><h2>That project isn’t here.</h2><p>It may be outside the published roadmap or no longer active.</p><Link className="google-button" href="/projects">Return to projects</Link></div></main>}

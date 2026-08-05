@@ -1,0 +1,12 @@
+import { describe,expect,it } from "vitest";
+import { currentQuarter,quarterFromDate,qualifyingProjects,sanitizePlainText,shiftQuarter,visibleInitiatives } from "@/lib/roadmap";
+import { demoSnapshot } from "@/lib/demo-data";
+
+describe("roadmap conventions",()=>{
+  it("derives quarter boundaries",()=>{expect(quarterFromDate("2026-01-01")).toBe("Q1 2026");expect(quarterFromDate("2026-03-31")).toBe("Q1 2026");expect(quarterFromDate("2026-04-01")).toBe("Q2 2026");expect(quarterFromDate("2026-12-31")).toBe("Q4 2026")});
+  it("moves across year boundaries",()=>{expect(shiftQuarter("Q4 2026",1)).toBe("Q1 2027");expect(shiftQuarter("Q1 2026",-1)).toBe("Q4 2025")});
+  it("uses the configured timezone for current quarter",()=>{expect(currentQuarter(new Date("2026-08-05T12:00:00Z"))).toBe("Q3 2026")});
+  it("excludes canceled initiatives",()=>{const canceled={...demoSnapshot.initiatives[0],id:"x",status:"Canceled"};expect(visibleInitiatives([...demoSnapshot.initiatives,canceled],"Q3 2026").some((x)=>x.id==="x")).toBe(false)});
+  it("includes Product-owned and visible-goal-linked work",()=>{const visible=new Set(["migrate"]);const projects=qualifyingProjects(demoSnapshot.projects,visible);expect(projects.some((p)=>p.id==="payments")).toBe(true);expect(projects.some((p)=>p.id==="notifications")).toBe(true)});
+  it("strips markdown and links from executive text",()=>{expect(sanitizePlainText("**Hello** [team](https://example.com) <script>x</script>")).toBe("Hello team x")});
+});

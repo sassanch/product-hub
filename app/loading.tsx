@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="shell"><div className="topbar"/><div className="hero"><div><span className="eyebrow">Loading roadmap</span><h1>Connecting goals to delivery.</h1></div></div></div>}
