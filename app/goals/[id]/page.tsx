@@ -1,0 +1,11 @@
+import Link from "next/link";
+import { ArrowLeft, CalendarDays, UserRound } from "lucide-react";
+import { notFound } from "next/navigation";
+import { AppShell } from "@/components/app-shell";
+import { ProjectCard } from "@/components/project-card";
+import { StatusFeed } from "@/components/status-feed";
+import { DateText, HealthBadge } from "@/components/status";
+import { getRoadmapSnapshot } from "@/lib/linear";
+import { quarterFromDate } from "@/lib/roadmap";
+
+export default async function GoalDetail({params}:{params:Promise<{id:string}>}) {const {id}=await params;const snapshot=await getRoadmapSnapshot();const goal=snapshot.initiatives.find((item)=>item.id===id);if(!goal)notFound();const projects=snapshot.projects.filter((project)=>project.initiativeIds.includes(goal.id));const quarter=quarterFromDate(goal.targetDate);return <AppShell><Link className="back" href={`/?quarter=${encodeURIComponent(quarter||"")}`}><ArrowLeft size={15}/>Back to {quarter||"roadmap"}</Link><header className="detail-header"><div><span className="eyebrow">Quarterly outcome</span><h1>{goal.name}</h1><p>{goal.summary||"Outcome summary not set in Linear"}</p></div><span className="status">{goal.status}</span></header><div className="detail-grid"><main><section className="panel"><h2>Status update history</h2><StatusFeed updates={goal.statusUpdates}/></section><section className="detail-section"><div className="section-head"><div><h2>Supporting projects</h2><p>Work connected to this outcome in Linear.</p></div><span className="count">{projects.length}</span></div>{projects.length?<div className="portfolio two-column">{projects.map((project)=><ProjectCard project={project} key={project.id}/>)}</div>:<div className="feed-empty">No projects are linked to this outcome.</div>}</section></main><aside className="panel detail-aside"><h2>Outcome details</h2><dl className="fact-list"><div><dt>Status</dt><dd>{goal.status}</dd></div><div><dt>Health</dt><dd><HealthBadge health={goal.health}/></dd></div><div><dt>Owner</dt><dd><UserRound size={14}/>{goal.owner||"Not set"}</dd></div><div><dt>Target</dt><dd><CalendarDays size={14}/><DateText value={goal.targetDate}/></dd></div><div><dt>Quarter</dt><dd>{quarter||"Not set"}</dd></div></dl></aside></div></AppShell>}
