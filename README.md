@@ -13,12 +13,12 @@ Without credentials, local development uses representative preview data and bypa
 
 ## First deployment
 
-1. Put this code in a private GitHub repository.
+1. Put this code in a GitHub repository.
 2. In Vercel, choose **Add New → Project**, import the repository, and keep the detected Next.js settings.
-3. Before deploying, add one environment variable named `LINEAR_API_KEY` with a read-only Linear API key.
-4. Select **Deploy**. Vercel will provide a public `vercel.app` link.
+3. Select **Deploy**. Vercel will provide a public `vercel.app` link showing the built-in preview roadmap.
+4. When you are ready for live data, add one environment variable named `LINEAR_API_KEY` with a read-only Linear API key and redeploy.
 
-There is no authentication, database, webhook, or scheduled job to provision. Linear is queried server-side when a page loads. The two portfolio queries run in parallel, the API key is never sent to the browser, and only sanitized roadmap fields are included in the public response.
+There is no authentication, database, webhook, or scheduled job to provision. Without a Linear key, the app displays clearly labeled preview data. Once a key is configured, Linear is queried server-side when a page loads. The two portfolio queries run in parallel, the API key is never sent to the browser, and only sanitized roadmap fields are included in the public response.
 
 Because the link is public, anyone who obtains it can view the displayed goals, project summaries, owners, health, updates, dates, and milestones. The app cannot edit Linear.
 

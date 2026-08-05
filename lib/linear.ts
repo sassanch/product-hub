@@ -21,8 +21,7 @@ type ProjectNode = { id:string; name:string; summary?:string; health?:Health; st
 
 async function fetchLinearSnapshot() {
   if (!process.env.LINEAR_API_KEY) {
-    if (process.env.NODE_ENV !== "production") return demoSnapshot;
-    throw new Error("LINEAR_API_KEY is not configured");
+    return demoSnapshot;
   }
   const [initiativeData, projectData] = await Promise.all([
     graphql<{initiatives:{nodes:InitiativeNode[]}}>(INITIATIVES), graphql<{projects:{nodes:ProjectNode[]}}>(PROJECTS),
