@@ -170,7 +170,7 @@ async function fetchSheetsSnapshot() {
       readRanges(initiativesId, ["Initiatives!A2:C1000", "Initiatives!E2:E1000", "Initiatives!G2:G1000", "Initiatives!I2:I1000", "Initiatives!J2:K1000", "Initiatives!Q2:T1000"], accessToken),
       readRanges(projectsId, ["Projects!A2:B1000", "Projects!D2:D1000", "Projects!F2:F1000", "Projects!H2:H1000", "Projects!J2:J1000", "Projects!L2:O1000", "Projects!V2:Z1000", "Projects!AF2:AF1000"], accessToken),
     ]);
-    return { initiatives: mapInitiatives(initiativeRanges), projects: mapProjects(projectRanges), syncedAt: new Date().toISOString(), source: "sheets" as const };
+    return { initiatives: mapInitiatives(initiativeRanges).filter((initiative) => initiative.owner === "Stefano Sanchez"), projects: mapProjects(projectRanges), syncedAt: new Date().toISOString(), source: "sheets" as const };
   } catch (error) {
     console.error(JSON.stringify({ level: "error", message: "Unable to load Google Sheets roadmap", error: error instanceof Error ? error.message : String(error) }));
     return demoSnapshot;
