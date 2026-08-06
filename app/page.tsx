@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { GoalCard } from "@/components/goal-card";
-import { getRoadmapSnapshot } from "@/lib/linear";
+import { getRoadmapSnapshot } from "@/lib/google-sheets";
 import { currentQuarter,shiftQuarter,visibleInitiatives } from "@/lib/roadmap";
 
 const months=["Jan – Mar","Apr – Jun","Jul – Sep","Oct – Dec"];

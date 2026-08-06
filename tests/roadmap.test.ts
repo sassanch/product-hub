@@ -1,6 +1,7 @@
 import { describe,expect,it } from "vitest";
 import { currentQuarter,quarterFromDate,qualifyingProjects,sanitizePlainText,shiftQuarter,visibleInitiatives } from "@/lib/roadmap";
 import { demoSnapshot } from "@/lib/demo-data";
+import { sheetDate,sheetHealth,sheetMilestones } from "@/lib/google-sheets";
 
 describe("roadmap conventions",()=>{
   it("derives quarter boundaries",()=>{expect(quarterFromDate("2026-01-01")).toBe("Q1 2026");expect(quarterFromDate("2026-03-31")).toBe("Q1 2026");expect(quarterFromDate("2026-04-01")).toBe("Q2 2026");expect(quarterFromDate("2026-12-31")).toBe("Q4 2026")});
@@ -9,4 +10,7 @@ describe("roadmap conventions",()=>{
   it("excludes canceled initiatives",()=>{const canceled={...demoSnapshot.initiatives[0],id:"x",status:"Canceled"};expect(visibleInitiatives([...demoSnapshot.initiatives,canceled],"Q3 2026").some((x)=>x.id==="x")).toBe(false)});
   it("includes Product-owned and visible-goal-linked work",()=>{const visible=new Set(["migrate"]);const projects=qualifyingProjects(demoSnapshot.projects,visible);expect(projects.some((p)=>p.id==="payments")).toBe(true);expect(projects.some((p)=>p.id==="notifications")).toBe(true)});
   it("strips markdown and links from executive text",()=>{expect(sanitizePlainText("**Hello** [team](https://example.com) <script>x</script>")).toBe("Hello team x")});
+  it("maps exclusive sheet quarter boundaries",()=>{expect(sheetDate("10/1/2026",true)).toBe("2026-09-30")});
+  it("maps sheet health values",()=>{expect(sheetHealth("At risk")).toBe("atRisk");expect(sheetHealth("No updates")).toBeNull()});
+  it("maps exported milestones",()=>{expect(sheetMilestones("p1","Beta[next],GA[unstarted],Shaping[done](Target Date: 2026-08-07)")).toEqual([{id:"p1-milestone-0",name:"Beta",description:null,targetDate:null},{id:"p1-milestone-1",name:"GA",description:null,targetDate:null},{id:"p1-milestone-2",name:"Shaping",description:null,targetDate:"2026-08-07"}])});
 });

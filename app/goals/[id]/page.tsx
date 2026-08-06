@@ -5,7 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { ProjectCard } from "@/components/project-card";
 import { StatusFeed } from "@/components/status-feed";
 import { DateText,HealthBadge,RelativeUpdate } from "@/components/status";
-import { getRoadmapSnapshot } from "@/lib/linear";
+import { getRoadmapSnapshot } from "@/lib/google-sheets";
 import { quarterFromDate } from "@/lib/roadmap";
 
 export default async function GoalDetail({params}:{params:Promise<{id:string}>}){

@@ -12,4 +12,4 @@ export type Initiative = {
   id: string; name: string; summary: string | null; status: string; health: Health;
   owner: string | null; targetDate: string | null; latestUpdate: string | null; latestUpdateAt: string | null; statusUpdates: StatusUpdate[];
 };
-export type RoadmapSnapshot = { initiatives: Initiative[]; projects: Project[]; syncedAt: string | null; source: "linear" | "preview" };
+export type RoadmapSnapshot = { initiatives: Initiative[]; projects: Project[]; syncedAt: string | null; source: "sheets" | "preview" };

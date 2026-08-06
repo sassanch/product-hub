@@ -1,6 +1,6 @@
 # Plei Outcomes
 
-A public, outcome-based product roadmap backed by Linear. The application is read-only: every page request fetches initiatives, projects, milestones, and status updates from Linear on the server, sanitizes them, and renders the company-facing view.
+A public, outcome-based product roadmap backed by two Google Sheets that are synchronized from Linear. The application reads only the columns required by the roadmap, sanitizes them on the server, and renders the company-facing view.
 
 ## Local preview
 
@@ -9,18 +9,18 @@ npm install
 npm run dev
 ```
 
-Without credentials, local development uses representative preview data and bypasses sign-in. Production never enables that bypass.
+Without credentials, local development uses representative preview data.
 
 ## First deployment
 
 1. Put this code in a GitHub repository.
 2. In Vercel, choose **Add New → Project**, import the repository, and keep the detected Next.js settings.
 3. Select **Deploy**. Vercel will provide a public `vercel.app` link showing the built-in preview roadmap.
-4. When you are ready for live data, add one environment variable named `LINEAR_API_KEY` with a read-only Linear API key and redeploy.
+4. Add `GOOGLE_PROJECTS_SHEET_ID`, `GOOGLE_INITIATIVES_SHEET_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, and `GOOGLE_PRIVATE_KEY`, then redeploy. Share both source sheets with the service-account email as a Viewer.
 
-There is no authentication, database, webhook, or scheduled job to provision. Without a Linear key, the app displays clearly labeled preview data. Once a key is configured, Linear is queried server-side when a page loads. The two portfolio queries run in parallel, the API key is never sent to the browser, and only sanitized roadmap fields are included in the public response.
+There is no user authentication, database, webhook, or scheduled job to provision. Without Google credentials, the app displays clearly labeled preview data. Once configured, the two spreadsheets are read in parallel on the server. Service-account credentials are never sent to the browser, and only sanitized roadmap fields are included in the public response.
 
-Because the link is public, anyone who obtains it can view the displayed goals, project summaries, owners, health, updates, dates, and milestones. The app cannot edit Linear.
+Because the link is public, anyone who obtains it can view the displayed goals, project summaries, owners, health, updates, and dates. The app has read-only access to the source sheets.
 
 ## Commands
 

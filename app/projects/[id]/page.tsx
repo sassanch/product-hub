@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { StatusFeed } from "@/components/status-feed";
 import { DateText,HealthBadge,RelativeUpdate } from "@/components/status";
-import { getRoadmapSnapshot } from "@/lib/linear";
+import { getRoadmapSnapshot } from "@/lib/google-sheets";
 
 export default async function ProjectDetail({params}:{params:Promise<{id:string}>}){
   const {id}=await params;const snapshot=await getRoadmapSnapshot();const p=snapshot.projects.find(item=>item.id===id);if(!p)notFound();const goals=snapshot.initiatives.filter(g=>p.initiativeIds.includes(g.id));

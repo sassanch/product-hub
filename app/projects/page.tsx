@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { ProjectCard } from "@/components/project-card";
-import { getRoadmapSnapshot } from "@/lib/linear";
+import { getRoadmapSnapshot } from "@/lib/google-sheets";
 import { groupForStatus } from "@/lib/roadmap";
 
 export const dynamic="force-dynamic";
