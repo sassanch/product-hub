@@ -5,5 +5,5 @@ import { HealthBadge } from "./status";
 
 export function GoalCard({goal,projects}:{goal:Initiative;projects:Project[]}) {
   const linked=getGoalProjects(goal,projects);
-  return <Link href={`/goals/${goal.id}`} className="outcome-card"><div className="card-title"><h3>{goal.name}</h3><HealthBadge health={goal.health}/></div><p className={goal.latestUpdate?"":"empty-copy"}>{goal.latestUpdate||"No status update posted yet."}</p><footer><span>{goal.owner||"Owner not set"}</span><span>{linked.length} {linked.length===1?"project":"projects"}</span></footer></Link>;
+  return <Link href={`/goals/${goal.id}`} prefetch={true} className="outcome-card"><div className="card-title"><div className="card-copy"><h3>{goal.name}</h3><p className={goal.summary?"":"empty-copy"}>{goal.summary||"Description not provided."}</p></div><HealthBadge health={goal.health}/></div><footer><span>{goal.owner||"Owner not set"}</span><span>{linked.length} {linked.length===1?"project":"projects"}</span></footer></Link>;
 }

@@ -1,4 +1,18 @@
-import type { Initiative, Project, RoadmapSnapshot } from "@/lib/types";
+import type { Initiative, Milestone, Project, RoadmapSnapshot } from "@/lib/types";
+
+const undatedMilestoneOrder = ["shaping", "building", "internal", "alpha", "beta", "ga"];
+
+export function visibleProjectMilestones(milestones: Milestone[]) {
+  return milestones.filter((milestone) => milestone.name.trim().toLowerCase() !== "feedback").toSorted((a, b) => {
+    if (a.targetDate && b.targetDate) return a.targetDate.localeCompare(b.targetDate) || a.name.localeCompare(b.name);
+    if (a.targetDate) return -1;
+    if (b.targetDate) return 1;
+    const aIndex = undatedMilestoneOrder.indexOf(a.name.trim().toLowerCase());
+    const bIndex = undatedMilestoneOrder.indexOf(b.name.trim().toLowerCase());
+    if (aIndex !== bIndex) return (aIndex === -1 ? undatedMilestoneOrder.length : aIndex) - (bIndex === -1 ? undatedMilestoneOrder.length : bIndex);
+    return a.name.localeCompare(b.name);
+  });
+}
 
 export const APP_TIMEZONE = process.env.COMPANY_TIMEZONE || "America/New_York";
 
@@ -42,6 +56,21 @@ export function qualifyingProjects(projects: Project[], visibleGoalIds: Set<stri
     const productOwned = project.teamNames.includes("Product");
     const goalLinked = project.initiativeIds.some((id) => visibleGoalIds.has(id));
     return unfinished && (productOwned || goalLinked);
+  });
+}
+
+const excludedProjectStatuses = new Set(["planning", "framing", "candidate", "canceled"]);
+
+export function visibleProjectsForBoard(projects: Project[], now = new Date()) {
+  const maintenanceCutoff = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 6, now.getUTCDate()));
+  return projects.filter((project) => {
+    const status = project.status.trim().toLowerCase();
+    const productOwned = project.teamNames.some((team) => ["prod", "product"].includes(team.trim().toLowerCase()));
+    if (!productOwned || excludedProjectStatuses.has(status)) return false;
+    if (status !== "maintenance") return true;
+    if (!project.targetDate) return false;
+    const targetDate = new Date(`${project.targetDate}T00:00:00Z`);
+    return !Number.isNaN(targetDate.valueOf()) && targetDate >= maintenanceCutoff;
   });
 }
 

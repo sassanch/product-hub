@@ -1,4 +1,6 @@
 import { createSign } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { demoSnapshot } from "@/lib/demo-data";
 import { sanitizePlainText } from "@/lib/roadmap";
@@ -15,18 +17,28 @@ function base64url(value: string | Buffer) {
   return Buffer.from(value).toString("base64url");
 }
 
-async function getAccessToken() {
+function getGoogleCredentials() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!email || !privateKey) throw new Error("Google Sheets credentials are not configured");
+  if (email && privateKey) return { email, privateKey };
+
+  const credentialsFile = process.env.GOOGLE_SERVICE_ACCOUNT_FILE;
+  if (!credentialsFile) return null;
+  const credentials = JSON.parse(readFileSync(credentialsFile, "utf8")) as { client_email?: string; private_key?: string };
+  return credentials.client_email && credentials.private_key ? { email: credentials.client_email, privateKey: credentials.private_key } : null;
+}
+
+async function getAccessToken() {
+  const credentials = getGoogleCredentials();
+  if (!credentials) throw new Error("Google Sheets credentials are not configured");
 
   const now = Math.floor(Date.now() / 1000);
   const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = base64url(JSON.stringify({ iss: email, scope, aud: tokenEndpoint, iat: now, exp: now + 3600 }));
+  const claim = base64url(JSON.stringify({ iss: credentials.email, scope, aud: tokenEndpoint, iat: now, exp: now + 3600 }));
   const unsigned = `${header}.${claim}`;
   const signer = createSign("RSA-SHA256");
   signer.update(unsigned);
-  const assertion = `${unsigned}.${base64url(signer.sign(privateKey))}`;
+  const assertion = `${unsigned}.${base64url(signer.sign(credentials.privateKey))}`;
   const response = await fetch(tokenEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -80,8 +92,14 @@ function splitList(value: string) {
   return value.split(",").map((item) => item.trim()).filter(Boolean);
 }
 
+export function cleanProjectUpdate(value: string) {
+  const withoutAttribution = value.replace(/^\s*(?:🟢|🟡|🔴)?\s*(?:On track|At risk|Off track)\s*\|\s*[^\n]*posted an update on[^\n]*(?:\n|$)/i, "");
+  const [narrative] = withoutAttribution.split(/\n\s*(?=(?:\*\*)?(?:Status|Target date)(?:\*\*)?:|\*+Progress since)/i);
+  return narrative.trim();
+}
+
 function latestUpdate(id: string, body: string, createdAt: string, health: Health): StatusUpdate[] {
-  const clean = sanitizePlainText(body);
+  const clean = body.trim();
   const date = sheetDateTime(createdAt);
   return clean && date ? [{ id: `${id}-latest`, body: clean, createdAt: date, health }] : [];
 }
@@ -137,7 +155,7 @@ function mapProjects(ranges: ValueRange[]): Project[] {
     const name = cell(identity, row, 1);
     if (!id || !name) continue;
     const health = sheetHealth(cell(portfolio, row, 2));
-    const updates = latestUpdate(id, cell(portfolio, row, 3), cell(portfolio, row, 4), health);
+    const updates = latestUpdate(id, cleanProjectUpdate(cell(portfolio, row, 3)), cell(portfolio, row, 4), health);
     projects.push({
       id,
       name,
@@ -162,7 +180,7 @@ function mapProjects(ranges: ValueRange[]): Project[] {
 async function fetchSheetsSnapshot() {
   const projectsId = process.env.GOOGLE_PROJECTS_SHEET_ID;
   const initiativesId = process.env.GOOGLE_INITIATIVES_SHEET_ID;
-  if (!projectsId || !initiativesId || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) return demoSnapshot;
+  if (!projectsId || !initiativesId || !getGoogleCredentials()) return demoSnapshot;
 
   try {
     const accessToken = await getAccessToken();
@@ -177,4 +195,5 @@ async function fetchSheetsSnapshot() {
   }
 }
 
-export const getRoadmapSnapshot = cache(fetchSheetsSnapshot);
+const getCachedRoadmapSnapshot = unstable_cache(fetchSheetsSnapshot, ["google-sheets-roadmap"], { revalidate: 60 });
+export const getRoadmapSnapshot = cache(getCachedRoadmapSnapshot);
