@@ -1,16 +1,23 @@
 import { AppShell } from "@/components/app-shell";
-import { Navigation } from "@/components/navigation";
 import { ProjectCard } from "@/components/project-card";
-import { RoadmapHeader } from "@/components/roadmap-header";
 import { getRoadmapSnapshot } from "@/lib/linear";
-import { currentQuarter, groupForStatus, snapshotQuarter } from "@/lib/roadmap";
+import { groupForStatus } from "@/lib/roadmap";
 
-export const metadata={title:"Projects"};
-export default async function ProjectsPage({searchParams}:{searchParams:Promise<{quarter?:string}>}) {
-  const [{quarter},snapshot]=await Promise.all([searchParams,getRoadmapSnapshot()]);
-  const selected=/^Q[1-4] \d{4}$/.test(quarter||"")?quarter!:currentQuarter();
-  const {projects,unlinked}=snapshotQuarter(snapshot,selected);
-  const linked=projects.filter((p)=>!unlinked.some((u)=>u.id===p.id));
-  const groups=["Building","Rolling out","Shaping"].map((stage)=>({stage,items:linked.filter((p)=>groupForStatus(p.statusType,p.status)===stage)})).filter((g)=>g.items.length);
-  return <AppShell><RoadmapHeader snapshot={snapshot}/><Navigation active="projects" quarter={selected}/>{groups.map(({stage,items})=><section key={stage}><div className="section-head"><div><h2>{stage}</h2><p>{stage==="Building"?"Projects actively moving through delivery.":stage==="Rolling out"?"Work reaching teammates or customers.":"Work being understood, scoped, and prepared."}</p></div><span className="count">{items.length}</span></div><div className="portfolio">{items.map((p)=><ProjectCard key={p.id} project={p}/>)}</div></section>)}<section><div className="section-head"><div><h2>Unlinked projects</h2><p>Product work that is not yet connected to a {selected} goal.</p></div><span className="count">{unlinked.length}</span></div>{unlinked.length?<div className="portfolio">{unlinked.map((p)=><ProjectCard key={p.id} project={p}/>)}</div>:<div className="empty-state"><h3>Everything is connected</h3><p>All visible product projects support a quarterly goal.</p></div>}</section></AppShell>;
+export const dynamic="force-dynamic";
+
+const stages=[
+  {name:"Planned",description:"Committed, not yet started"},
+  {name:"Shaping",description:"Defining scope and approach"},
+  {name:"Building",description:"Actively in development"},
+  {name:"Rollout",description:"Shipping to users"},
+  {name:"Maintenance",description:"Live and being maintained"},
+  {name:"Canceled",description:"No longer active"},
+];
+function stageFor(type:string,status:string){const value=`${type} ${status}`.toLowerCase();if(value.includes("cancel"))return "Canceled";if(value.includes("complete")||value.includes("maintenance")||value.includes("shipped"))return "Maintenance";if(value.includes("rollout")||value.includes("launch"))return "Rollout";if(groupForStatus(type,status)==="Building")return "Building";if(value.includes("planned")||value.includes("backlog"))return "Planned";return "Shaping";}
+
+export default async function ProjectsPage(){
+  const snapshot=await getRoadmapSnapshot();
+  const visible=snapshot.projects.filter(p=>p.teamNames.includes("Product")||p.initiativeIds.length>0);
+  const active=visible.filter(p=>stageFor(p.statusType,p.status)!=="Canceled").length;
+  return <AppShell active="projects" snapshot={snapshot}><div className="context-bar"><div><strong>All projects</strong><span>·</span><span>{active} active</span><span>·</span><span>{visible.length-active} canceled</span></div><span className="scroll-note">Scroll horizontally to see all columns</span></div><main className="projects-board">{stages.map(stage=>{const items=visible.filter(p=>stageFor(p.statusType,p.status)===stage.name);return <section className="project-column" key={stage.name}><header><div><strong>{stage.name}</strong><span>{items.length}</span></div><p>{stage.description}</p></header><div className="project-cards">{items.map(p=>{const goal=snapshot.initiatives.find(g=>p.initiativeIds.includes(g.id));return <ProjectCard key={p.id} project={p} goalName={goal?.name}/>})}</div></section>})}</main></AppShell>;
 }
