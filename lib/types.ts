@@ -1,5 +1,5 @@
 export type Health = "onTrack" | "atRisk" | "offTrack" | null;
-export type StatusUpdate = { id: string; body: string; createdAt: string; health: Health };
+export type StatusUpdate = { id: string; body: string; createdAt: string; health: Health; author?: string | null };
 
 export type Milestone = { id: string; name: string; description: string | null; targetDate: string | null };
 export type Project = {

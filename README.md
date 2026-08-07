@@ -1,4 +1,4 @@
-# Plei Outcomes
+# Plei Product Hub
 
 A public, outcome-based product roadmap backed by two Google Sheets that are synchronized from Linear. The application reads only the columns required by the roadmap, sanitizes them on the server, and renders the company-facing view.
 

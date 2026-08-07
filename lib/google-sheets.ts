@@ -2,7 +2,6 @@ import { createSign } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import { demoSnapshot } from "@/lib/demo-data";
 import { sanitizePlainText } from "@/lib/roadmap";
 import type { Health, Initiative, Project, StatusUpdate } from "@/lib/types";
 
@@ -98,10 +97,15 @@ export function cleanProjectUpdate(value: string) {
   return narrative.trim();
 }
 
+export function statusUpdateAuthor(value: string) {
+  const match = /^\s*(?:🟢|🟡|🔴)?\s*(?:On track|At risk|Off track)\s*\|\s*(.+?)\s+posted an update on\b/i.exec(value);
+  return match?.[1]?.trim() || null;
+}
+
 function latestUpdate(id: string, body: string, createdAt: string, health: Health): StatusUpdate[] {
-  const clean = body.trim();
+  const clean = cleanProjectUpdate(body);
   const date = sheetDateTime(createdAt);
-  return clean && date ? [{ id: `${id}-latest`, body: clean, createdAt: date, health }] : [];
+  return clean && date ? [{ id: `${id}-latest`, body: clean, createdAt: date, health, author: statusUpdateAuthor(body) }] : [];
 }
 
 export function sheetMilestones(projectId: string, value: string) {
@@ -155,7 +159,7 @@ function mapProjects(ranges: ValueRange[]): Project[] {
     const name = cell(identity, row, 1);
     if (!id || !name) continue;
     const health = sheetHealth(cell(portfolio, row, 2));
-    const updates = latestUpdate(id, cleanProjectUpdate(cell(portfolio, row, 3)), cell(portfolio, row, 4), health);
+    const updates = latestUpdate(id, cell(portfolio, row, 3), cell(portfolio, row, 4), health);
     projects.push({
       id,
       name,
@@ -181,7 +185,9 @@ function mapProjects(ranges: ValueRange[]): Project[] {
 async function fetchSheetsSnapshot() {
   const projectsId = process.env.GOOGLE_PROJECTS_SHEET_ID;
   const initiativesId = process.env.GOOGLE_INITIATIVES_SHEET_ID;
-  if (!projectsId || !initiativesId || !getGoogleCredentials()) return demoSnapshot;
+  if (!projectsId || !initiativesId || !getGoogleCredentials()) {
+    return null;
+  }
 
   try {
     const accessToken = await getAccessToken();
@@ -192,7 +198,7 @@ async function fetchSheetsSnapshot() {
     return { initiatives: mapInitiatives(initiativeRanges).filter((initiative) => initiative.owner === "Stefano Sanchez"), projects: mapProjects(projectRanges), syncedAt: new Date().toISOString(), source: "sheets" as const };
   } catch (error) {
     console.error(JSON.stringify({ level: "error", message: "Unable to load Google Sheets roadmap", error: error instanceof Error ? error.message : String(error) }));
-    return demoSnapshot;
+    return null;
   }
 }
 
