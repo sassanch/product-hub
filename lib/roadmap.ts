@@ -1,6 +1,15 @@
 import type { Initiative, Milestone, Project, RoadmapSnapshot } from "@/lib/types";
 
 const undatedMilestoneOrder = ["shaping", "building", "internal", "alpha", "beta", "ga"];
+const projectPriorityOrder = ["urgent", "high", "medium", "low", "no priority"];
+
+export function sortProjectsByPriority(projects: Project[]) {
+  return projects.toSorted((a, b) => {
+    const aIndex = projectPriorityOrder.indexOf((a.priority || "no priority").trim().toLowerCase());
+    const bIndex = projectPriorityOrder.indexOf((b.priority || "no priority").trim().toLowerCase());
+    return (aIndex === -1 ? projectPriorityOrder.length : aIndex) - (bIndex === -1 ? projectPriorityOrder.length : bIndex);
+  });
+}
 
 export function visibleProjectMilestones(milestones: Milestone[]) {
   return milestones.filter((milestone) => milestone.name.trim().toLowerCase() !== "feedback").toSorted((a, b) => {

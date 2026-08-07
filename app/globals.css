@@ -19,4 +19,23 @@
 .detail-backdrop{inset:48px 420px 0 0;background:rgba(24,27,30,.16);backdrop-filter:blur(1.5px)}.detail-drawer{width:420px;border-left-color:#dfe1e5;box-shadow:-20px 0 48px rgba(22,27,31,.14)}.drawer-head{padding:24px 24px 20px}.drawer-head h1{margin-top:7px;font-size:17px;line-height:23px;letter-spacing:-.02em}.drawer-kicker,.drawer-section h2{font-family:var(--font);font-weight:600;letter-spacing:.06em}.drawer-tagline{max-width:340px;margin-top:8px;font-size:12px;line-height:18px}.drawer-close{display:grid;width:30px;height:30px;place-items:center;border:1px solid var(--line);border-radius:7px;background:#fff;transition:background .15s,border-color .15s}.drawer-close:hover{border-color:#ccd0d5;background:#f6f7f8}.drawer-facts,.drawer-section{padding-left:24px;padding-right:24px}.drawer-facts strong{font-size:12px}.latest-update p,.feed-item p{font-size:12px;line-height:18px}
 @media(max-width:760px){.app-header{gap:8px;padding:0 12px}.app-brand span{display:none}.app-header nav{padding-left:0}.last-sync{font-size:0}.last-sync:before{content:"Live";font-size:10px}.context-bar{padding:0 12px}.context-bar .health-key,.scroll-note{display:none}.roadmap-board{grid-template-columns:repeat(3,85vw)}.detail-backdrop{display:none}.detail-drawer{top:48px;width:100%}.quarter-switcher{display:none}.project-column{flex-basis:82vw;width:82vw;min-width:82vw}}
 @media(max-width:760px){.roadmap-board{overflow-x:auto;overflow-y:hidden}}
+@media(prefers-color-scheme:dark){
+  :root{color-scheme:dark;--forest:#d7e8e1;--green:#65c7a7;--bright:#4fd1a2;--mint:#17372f;--canvas:#111315;--gray:#202327;--ink:#f0f1f2;--muted:#a6a9ae;--soft:#777b82;--line:#2b2e33;--white:#191c1f}
+  html,body,.app-shell{background:var(--canvas);color:var(--ink)}
+  .app-header{border-bottom-color:var(--line);background:rgba(24,27,30,.96);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .app-brand span:nth-of-type(1){color:#555960}.app-brand span:nth-of-type(2),.app-header nav a,.last-sync{color:var(--muted)}
+  .app-header nav{border-left-color:var(--line)}.app-header nav a:hover{background:#24282c;color:var(--ink)}.app-header nav a.active{background:#20352f;color:#dff7ee}.last-sync b{background:#1c3d34;color:#7dd8ba}
+  .context-bar{border-bottom-color:var(--line);background:rgba(25,28,31,.94);box-shadow:0 1px 0 rgba(0,0,0,.2)}.context-bar strong{color:var(--ink)}.context-bar>div>span:nth-of-type(odd){color:#4d5157}
+  .roadmap-board,.projects-board{background:var(--canvas)}.quarter-column,.project-column{border-color:var(--line);background:#17191c;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .quarter-column>header,.project-column>header{border-bottom-color:var(--line);background:rgba(28,31,35,.9)}
+  .outcome-card,.kanban-card{border-color:#30343a;background:#1d2024;box-shadow:0 1px 2px rgba(0,0,0,.25)}.outcome-card:hover,.kanban-card:hover{border-color:#427c6a;box-shadow:0 5px 18px rgba(0,0,0,.3)}
+  .outcome-card footer,.kanban-meta{border-top-color:#2a2d31}.card-copy p,.kanban-card>p{color:var(--muted)}
+  .health-badge{border-color:#285344;background:#19372f;color:#8fddc2}.health-badge.atRisk{border-color:#634f24;background:#392f1b;color:#efc66e}.health-badge.offTrack{border-color:#683737;background:#3b2224;color:#f09b9b}.health-badge.no-update{border-color:#3a3d42;background:#292c30;color:#a3a6ab}
+  .detail-backdrop{background:rgba(5,7,8,.62)}.detail-drawer{border-left-color:#34383e;background:#191c1f;box-shadow:-20px 0 48px rgba(0,0,0,.45)}
+  .drawer-head,.drawer-facts,.drawer-section{border-bottom-color:var(--line)}.drawer-close{border-color:#3a3e44;background:#22262a;color:var(--muted)}.drawer-close:hover{border-color:#555b63;background:#2b2f34}.drawer-facts .accent{color:var(--green)}
+  .markdown-content strong,.markdown-content h1,.markdown-content h2,.markdown-content h3,.markdown-content h4{color:var(--ink)}.markdown-content code,.markdown-content pre{background:#25292e;color:#e6e7e9}.markdown-content th,.markdown-content td{border-color:#393d43}
+  .milestone-list i{background:var(--green)}.goal-link{color:var(--green)}
+  .project-cards{scrollbar-color:#555a61 transparent}.project-cards::-webkit-scrollbar-thumb{background:#555a61;background-clip:padding-box}
+  .skeleton{background:linear-gradient(90deg,#24272b 25%,#30343a 50%,#24272b 75%);background-size:200% 100%}
+}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
