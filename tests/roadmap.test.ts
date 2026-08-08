@@ -1,7 +1,7 @@
 import { describe,expect,it } from "vitest";
 import { currentQuarter,quarterFromDate,qualifyingProjects,sanitizePlainText,shiftQuarter,sortProjectsByPriority,visibleInitiatives,visibleProjectMilestones,visibleProjectsForBoard } from "@/lib/roadmap";
 import { demoSnapshot } from "@/lib/demo-data";
-import { cleanProjectUpdate,sheetDate,sheetHealth,sheetMilestones,statusUpdateAuthor } from "@/lib/google-sheets";
+import { cleanProjectUpdate,mapProjects,sheetDate,sheetHealth,sheetMilestones,statusUpdateAuthor } from "@/lib/google-sheets";
 
 describe("roadmap conventions",()=>{
   it("derives quarter boundaries",()=>{expect(quarterFromDate("2026-01-01")).toBe("Q1 2026");expect(quarterFromDate("2026-03-31")).toBe("Q1 2026");expect(quarterFromDate("2026-04-01")).toBe("Q2 2026");expect(quarterFromDate("2026-12-31")).toBe("Q4 2026")});
@@ -18,4 +18,5 @@ describe("roadmap conventions",()=>{
   it("extracts the author from an exported status update",()=>{expect(statusUpdateAuthor("🟢 On track | Brayan Acebo posted an update on Jul 29\nShipped.")).toBe("Brayan Acebo");expect(statusUpdateAuthor("Shipped.")).toBeNull()});
   it("filters and orders project milestones",()=>{const milestones=[{id:"feedback",name:"Feedback",description:null,targetDate:"2026-07-01"},{id:"beta",name:"Beta",description:null,targetDate:null},{id:"internal",name:"Internal",description:null,targetDate:null},{id:"dated-late",name:"GA",description:null,targetDate:"2026-09-01"},{id:"shaping",name:"Shaping",description:null,targetDate:null},{id:"dated-early",name:"Alpha",description:null,targetDate:"2026-08-01"},{id:"building",name:"Building",description:null,targetDate:null}];expect(visibleProjectMilestones(milestones).map((milestone)=>milestone.id)).toEqual(["dated-early","dated-late","shaping","building","internal","beta"])});
   it("orders projects by Linear priority within a status",()=>{const base=demoSnapshot.projects[0];const projects=[{...base,id:"none",priority:"No priority"},{...base,id:"medium",priority:"Medium"},{...base,id:"urgent",priority:"Urgent"},{...base,id:"low",priority:"Low"},{...base,id:"high",priority:"High"}];expect(sortProjectsByPriority(projects).map((project)=>project.id)).toEqual(["urgent","high","medium","low","none"])});
+  it("keeps the column D summary separate from column E Markdown",()=>{const ranges=[{values:[["project-1","Project one"]]},{values:[["**Short** summary"]]},{values:[["# Full document\n\n[Mockup](https://figma.com/design/abc/File)"]]},{values:[["Ready"]]},{values:[["High"]]},{values:[[]]},{values:[["Lead"]]},{values:[[]]},{values:[["Product","","On track"]]},{values:[[]]}];const [project]=mapProjects(ranges);expect(project.summary).toBe("Short summary");expect(project.descriptionMarkdown).toBe("# Full document\n\n[Mockup](https://figma.com/design/abc/File)")});
 });

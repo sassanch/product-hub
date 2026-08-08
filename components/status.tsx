@@ -8,6 +8,9 @@ export function HealthBadge({health}:{health:Health}) {
 export function DateText({value,empty="Date not set"}:{value:string|null;empty?:string}) {
   return value?<>{new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"}).format(new Date(`${value}T12:00:00Z`))}</>:<span className="empty-copy">{empty}</span>;
 }
+export function CompactDate({value}:{value:string}) {
+  return <>{new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",timeZone:"UTC"}).format(new Date(`${value}T12:00:00Z`))}</>;
+}
 export function RelativeUpdate({value}:{value:string|null}) {
   return value?<>{new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"}).format(new Date(value))}</>:<>No recent update</>;
 }

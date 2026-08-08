@@ -1,11 +1,7 @@
-import { ProjectsView } from "@/components/projects-view";
-import { DataOutage } from "@/components/data-outage";
-import { getRoadmapSnapshot } from "@/lib/google-sheets";
+import { redirect } from "next/navigation";
 
 export const dynamic="force-dynamic";
 
-export default async function ProjectsPage(){
-  const snapshot=await getRoadmapSnapshot();
-  if(!snapshot)return <DataOutage/>;
-  return <ProjectsView snapshot={snapshot}/>;
+export default function ProjectsPage(){
+  redirect("/");
 }
